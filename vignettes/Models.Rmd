@@ -1,0 +1,69 @@
+---
+title: "Models"
+output: 
+  rmarkdown::html_vignette:
+    code_folding: show
+vignette: >
+  %\VignetteIndexEntry{Models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  echo = FALSE,
+  message = FALSE,
+  comment = "#>"
+)
+```
+
+```{css}
+img {
+  border: 0px;
+  width: 100%;
+}
+```
+
+```{r setup}
+library("BayesDeming")
+```
+
+TODO:
+
+- Remove logs from diagrams
+- Reparameterize in terms of sd, not precision
+- Add relevant hyper priors
+- Add indeces (i = 1, ..., K; j = 1, ..., Jx_i/Jy_i)
+- Add lambda as transformed parameter in stan code
+
+# Standard Deming regression
+![](model-diagrams/deming.png)
+```{stan, file='../inst/stan/deming.stan', output.var = "temp", echo = TRUE, eval = FALSE, class.source = 'fold-hide'}
+
+```
+
+<br></br>
+<br></br>
+
+# Deming regression incorporating prior data
+
+![](model-diagrams/deming_power.png)
+```{stan, file='../inst/stan/deming_power.stan', output.var = "temp", echo = TRUE, eval = FALSE, class.source = 'fold-hide'}
+
+```
+
+<br></br>
+
+## Hyper prior
+
+![](model-diagrams/deming_power_hyper_prior.png)
+```{stan, file='../inst/stan/deming_power_beta.stan', output.var = "temp", echo = TRUE, eval = FALSE, class.source = 'fold-hide'}
+
+```
+
+
+![](model-diagrams/deming_power_hyper_prior.png)
+```{stan, file='../inst/stan/deming_power_normal.stan', output.var = "temp", echo = TRUE, eval = FALSE, class.source = 'fold-hide'}
+
+```

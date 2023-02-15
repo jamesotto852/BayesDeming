@@ -17,8 +17,8 @@ data {
   // hyperpriors
   real<lower=0> sigma_x_max;
   real<lower=0> sigma_y_max;
-  real<lower=0> alpha_var;
-  real<lower=0> beta_var;
+  real<lower=0> alpha_sd;
+  real<lower=0> beta_sd;
   real alpha_mean;
   real beta_mean;
 
@@ -45,8 +45,11 @@ parameters {
 }
 
 transformed parameters {
+  real lambda;
   vector[K] nu;
+
   nu = alpha + beta * theta;
+  lambda = (sigma_y / sigma_x)^2;
 }
 
 model {
@@ -54,8 +57,8 @@ model {
   int pos;
 
   // Priors
-  alpha ~ normal(alpha_mean, alpha_var);
-  beta ~ normal(beta_mean, beta_var);
+  alpha ~ normal(alpha_mean, alpha_sd);
+  beta ~ normal(beta_mean, beta_sd);
 
   // Likelihood for x values
   pos = 1;

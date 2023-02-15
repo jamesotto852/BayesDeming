@@ -13,13 +13,17 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 
 RcppExport SEXP _rcpp_module_boot_stan_fit4deming_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4deming_empirical_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4deming_power_mod();
-RcppExport SEXP _rcpp_module_boot_stan_fit4deming_power_hyper_prior_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4deming_power_beta_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4deming_power_normal_mod();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rcpp_module_boot_stan_fit4deming_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4deming_mod, 0},
+    {"_rcpp_module_boot_stan_fit4deming_empirical_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4deming_empirical_mod, 0},
     {"_rcpp_module_boot_stan_fit4deming_power_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4deming_power_mod, 0},
-    {"_rcpp_module_boot_stan_fit4deming_power_hyper_prior_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4deming_power_hyper_prior_mod, 0},
+    {"_rcpp_module_boot_stan_fit4deming_power_beta_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4deming_power_beta_mod, 0},
+    {"_rcpp_module_boot_stan_fit4deming_power_normal_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4deming_power_normal_mod, 0},
     {NULL, NULL, 0}
 };
 

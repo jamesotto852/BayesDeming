@@ -35,4 +35,7 @@ Suggests:
     ggplot2,
     ggdensity,
     tidyselect,
-    tidyr
+    tidyr,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

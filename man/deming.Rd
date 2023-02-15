@@ -4,7 +4,7 @@
 \alias{deming}
 \title{Bayesian linear regression with Stan}
 \usage{
-deming(df, priors, formula = y ~ x, z, ...)
+deming(df, priors, formula = y ~ x, z = NULL, power = NULL, ...)
 }
 \arguments{
 \item{df}{Nested tibble, output from \code{sim_data}}

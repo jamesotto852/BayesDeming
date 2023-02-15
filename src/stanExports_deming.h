@@ -33,7 +33,7 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_deming");
-    reader.add_event(65, 63, "end", "model_deming");
+    reader.add_event(68, 66, "end", "model_deming");
     return reader;
 }
 #include <stan_meta_header.hpp>
@@ -49,8 +49,8 @@ private:
         vector_d Y;
         double sigma_x_max;
         double sigma_y_max;
-        double alpha_var;
-        double beta_var;
+        double alpha_sd;
+        double beta_sd;
         double alpha_mean;
         double beta_mean;
 public:
@@ -159,19 +159,19 @@ public:
             sigma_y_max = vals_r__[pos__++];
             check_greater_or_equal(function__, "sigma_y_max", sigma_y_max, 0);
             current_statement_begin__ = 20;
-            context__.validate_dims("data initialization", "alpha_var", "double", context__.to_vec());
-            alpha_var = double(0);
-            vals_r__ = context__.vals_r("alpha_var");
+            context__.validate_dims("data initialization", "alpha_sd", "double", context__.to_vec());
+            alpha_sd = double(0);
+            vals_r__ = context__.vals_r("alpha_sd");
             pos__ = 0;
-            alpha_var = vals_r__[pos__++];
-            check_greater_or_equal(function__, "alpha_var", alpha_var, 0);
+            alpha_sd = vals_r__[pos__++];
+            check_greater_or_equal(function__, "alpha_sd", alpha_sd, 0);
             current_statement_begin__ = 21;
-            context__.validate_dims("data initialization", "beta_var", "double", context__.to_vec());
-            beta_var = double(0);
-            vals_r__ = context__.vals_r("beta_var");
+            context__.validate_dims("data initialization", "beta_sd", "double", context__.to_vec());
+            beta_sd = double(0);
+            vals_r__ = context__.vals_r("beta_sd");
             pos__ = 0;
-            beta_var = vals_r__[pos__++];
-            check_greater_or_equal(function__, "beta_var", beta_var, 0);
+            beta_sd = vals_r__[pos__++];
+            check_greater_or_equal(function__, "beta_sd", beta_sd, 0);
             current_statement_begin__ = 22;
             context__.validate_dims("data initialization", "alpha_mean", "double", context__.to_vec());
             alpha_mean = double(0);
@@ -349,17 +349,30 @@ public:
                 sigma_y = in__.scalar_lub_constrain(0, sigma_y_max);
             // transformed parameters
             current_statement_begin__ = 37;
+            local_scalar_t__ lambda;
+            (void) lambda;  // dummy to suppress unused var warning
+            stan::math::initialize(lambda, DUMMY_VAR__);
+            stan::math::fill(lambda, DUMMY_VAR__);
+            current_statement_begin__ = 38;
             validate_non_negative_index("nu", "K", K);
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> nu(K);
             stan::math::initialize(nu, DUMMY_VAR__);
             stan::math::fill(nu, DUMMY_VAR__);
             // transformed parameters block statements
-            current_statement_begin__ = 38;
+            current_statement_begin__ = 40;
             stan::math::assign(nu, add(alpha, multiply(beta, theta)));
+            current_statement_begin__ = 41;
+            stan::math::assign(lambda, pow((sigma_y / sigma_x), 2));
             // validate transformed parameters
             const char* function__ = "validate transformed params";
             (void) function__;  // dummy to suppress unused var warning
             current_statement_begin__ = 37;
+            if (stan::math::is_uninitialized(lambda)) {
+                std::stringstream msg__;
+                msg__ << "Undefined transformed parameter: lambda";
+                stan::lang::rethrow_located(std::runtime_error(std::string("Error initializing variable lambda: ") + msg__.str()), current_statement_begin__, prog_reader__());
+            }
+            current_statement_begin__ = 38;
             size_t nu_j_1_max__ = K;
             for (size_t j_1__ = 0; j_1__ < nu_j_1_max__; ++j_1__) {
                 if (stan::math::is_uninitialized(nu(j_1__))) {
@@ -370,30 +383,30 @@ public:
             }
             // model body
             {
-            current_statement_begin__ = 43;
+            current_statement_begin__ = 46;
             int pos(0);
             (void) pos;  // dummy to suppress unused var warning
             stan::math::fill(pos, std::numeric_limits<int>::min());
-            current_statement_begin__ = 46;
-            lp_accum__.add(normal_log<propto__>(alpha, alpha_mean, alpha_var));
-            current_statement_begin__ = 47;
-            lp_accum__.add(normal_log<propto__>(beta, beta_mean, beta_var));
+            current_statement_begin__ = 49;
+            lp_accum__.add(normal_log<propto__>(alpha, alpha_mean, alpha_sd));
             current_statement_begin__ = 50;
+            lp_accum__.add(normal_log<propto__>(beta, beta_mean, beta_sd));
+            current_statement_begin__ = 53;
             stan::math::assign(pos, 1);
-            current_statement_begin__ = 51;
+            current_statement_begin__ = 54;
             for (int k = 1; k <= K; ++k) {
-                current_statement_begin__ = 52;
+                current_statement_begin__ = 55;
                 lp_accum__.add(normal_log<propto__>(segment(X, pos, get_base1(Jx, k, "Jx", 1)), get_base1(theta, k, "theta", 1), sigma_x));
-                current_statement_begin__ = 53;
+                current_statement_begin__ = 56;
                 stan::math::assign(pos, (pos + get_base1(Jx, k, "Jx", 1)));
             }
-            current_statement_begin__ = 57;
+            current_statement_begin__ = 60;
             stan::math::assign(pos, 1);
-            current_statement_begin__ = 58;
+            current_statement_begin__ = 61;
             for (int k = 1; k <= K; ++k) {
-                current_statement_begin__ = 59;
+                current_statement_begin__ = 62;
                 lp_accum__.add(normal_log<propto__>(segment(Y, pos, get_base1(Jy, k, "Jy", 1)), get_base1(nu, k, "nu", 1), sigma_y));
-                current_statement_begin__ = 60;
+                current_statement_begin__ = 63;
                 stan::math::assign(pos, (pos + get_base1(Jy, k, "Jy", 1)));
             }
             }
@@ -422,6 +435,7 @@ public:
         names__.push_back("theta");
         names__.push_back("sigma_x");
         names__.push_back("sigma_y");
+        names__.push_back("lambda");
         names__.push_back("nu");
     }
     void get_dims(std::vector<std::vector<size_t> >& dimss__) const {
@@ -433,6 +447,8 @@ public:
         dimss__.push_back(dims__);
         dims__.resize(0);
         dims__.push_back(K);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
         dimss__.push_back(dims__);
         dims__.resize(0);
         dimss__.push_back(dims__);
@@ -478,19 +494,27 @@ public:
         try {
             // declare and define transformed parameters
             current_statement_begin__ = 37;
+            double lambda;
+            (void) lambda;  // dummy to suppress unused var warning
+            stan::math::initialize(lambda, DUMMY_VAR__);
+            stan::math::fill(lambda, DUMMY_VAR__);
+            current_statement_begin__ = 38;
             validate_non_negative_index("nu", "K", K);
             Eigen::Matrix<double, Eigen::Dynamic, 1> nu(K);
             stan::math::initialize(nu, DUMMY_VAR__);
             stan::math::fill(nu, DUMMY_VAR__);
             // do transformed parameters statements
-            current_statement_begin__ = 38;
+            current_statement_begin__ = 40;
             stan::math::assign(nu, add(alpha, multiply(beta, theta)));
+            current_statement_begin__ = 41;
+            stan::math::assign(lambda, pow((sigma_y / sigma_x), 2));
             if (!include_gqs__ && !include_tparams__) return;
             // validate transformed parameters
             const char* function__ = "validate transformed params";
             (void) function__;  // dummy to suppress unused var warning
             // write transformed parameters
             if (include_tparams__) {
+                vars__.push_back(lambda);
                 size_t nu_j_1_max__ = K;
                 for (size_t j_1__ = 0; j_1__ < nu_j_1_max__; ++j_1__) {
                     vars__.push_back(nu(j_1__));
@@ -547,6 +571,9 @@ public:
         param_names__.push_back(param_name_stream__.str());
         if (!include_gqs__ && !include_tparams__) return;
         if (include_tparams__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "lambda";
+            param_names__.push_back(param_name_stream__.str());
             size_t nu_j_1_max__ = K;
             for (size_t j_1__ = 0; j_1__ < nu_j_1_max__; ++j_1__) {
                 param_name_stream__.str(std::string());
@@ -580,6 +607,9 @@ public:
         param_names__.push_back(param_name_stream__.str());
         if (!include_gqs__ && !include_tparams__) return;
         if (include_tparams__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "lambda";
+            param_names__.push_back(param_name_stream__.str());
             size_t nu_j_1_max__ = K;
             for (size_t j_1__ = 0; j_1__ < nu_j_1_max__; ++j_1__) {
                 param_name_stream__.str(std::string());

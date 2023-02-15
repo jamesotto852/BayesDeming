@@ -6,26 +6,30 @@
 #'
 #' @export
 #'
-deming <- function(df, priors, formula = y ~ x, z = NULL, ...) {
+deming <- function(df, priors, formula = y ~ x, z = NULL, power = NULL, empirical = FALSE, ...) {
 
   standata <- parse_df(df, formula, z)
-  standata <- add_priors(standata, priors)
+  standata <- add_priors(standata, priors, power)
 
-  mod <- get_deming_model(standata, priors)
+  mod <- get_deming_model(standata, priors, power, empirical = empirical)
 
   rstan::sampling(mod, data = standata, ...)
 
 }
 
-get_deming_model <- function(standata, priors) {
-  if (! "z" %in% names(standata)) {
-    # message("deming")
-    stanmodels$deming
-  } else if ("power" %in% names(priors)) {
-    # message("deming_power")
+get_deming_model <- function(standata, priors, power, empirical) {
+  if (is.null(power)) {
+    stopifnot("Extra data provided (z), but power prior model not specified" = ! "z" %in% names(standata))
+    if (empirical) {
+      stanmodels$deming_empirical
+    } else {
+      stanmodels$deming
+    }
+  } else if (power == "point") {
     stanmodels$deming_power
-  } else if ("power_a" %in% names(priors)) {
-    # message("deming_power_hyper_prior")
-    stanmodels$deming_power_hyper_prior
+  } else if (power == "beta" | power == "unif") {
+    stanmodels$deming_power_beta
+  } else if (power == "normal") {
+    stanmodels$deming_power_normal
   }
 }
