@@ -28,7 +28,7 @@ parse_df <- function(df, formula, z) {
 
 }
 
-add_priors <- function(standata, priors, power) {
+add_priors <- function(standata, priors, power, theta_range) {
   # Check that necessary priors have been specified:
   stopifnot(
     "sigma_x_max, sigma_y_max, alpha_sd, and beta_sd must all be specified" =
@@ -51,29 +51,45 @@ add_priors <- function(standata, priors, power) {
     priors$beta_mean <- 0
   }
 
-  if (is.null(power)) return(c(standata, priors))
+  if (!is.null(theta_range)) {
+    stopifnot(
+      "theta_range must be a numeric vector with length 2" = (length(theta_range) == 2),
+      "theta_range[1] must be less than theta_range[2]" = (theta_range[1] < theta_range[2])
+    )
 
-  if (power == "point") {
-    stopifnot("priors$power must be provided if power = 'point'" = "power" %in% names(priors))
-    stopifnot("power prior specified, but no additional data (z)" = "z" %in% names(standata))
-    stopifnot("power prior must be between 0 and 1 (inclusive)" = (0 <= priors$power & priors$power <= 1))
+    if (any(standata$X < theta_range[1] | standata$X > theta_range[2])) warning("Observed x values outside of theta_range, consider widening")
+
+    priors$theta_min <- theta_range[1]
+    priors$theta_max <- theta_range[2]
   }
 
-  if (power == "beta") {
-    stopifnot("priors$power_a and priors$power_b must be provided if power = 'beta'" = all(c("power_a", "power_b") %in% names(priors)))
-    stopifnot("power_a and prior_b specified, but no additional data (z)" = "z" %in% names(standata))
+  if (!is.null(power)) {
+
+    if (power == "point") {
+      stopifnot("priors$power must be provided if power = 'point'" = "power" %in% names(priors))
+      stopifnot("power prior specified, but no additional data (z)" = "z" %in% names(standata))
+      stopifnot("power prior must be between 0 and 1 (inclusive)" = (0 <= priors$power & priors$power <= 1))
+    }
+
+    if (power == "beta") {
+      stopifnot("priors$power_a and priors$power_b must be provided if power = 'beta'" = all(c("power_a", "power_b") %in% names(priors)))
+      stopifnot("power_a and prior_b specified, but no additional data (z)" = "z" %in% names(standata))
+    }
+
+    if (power == "normal") {
+      stopifnot("priors$power_mean and priors$power_sd must be provided if power = 'normal'" = all(c("power_mean", "power_sd") %in% names(priors)))
+      stopifnot("power_mean and prior_sd specified, but no additional data (z)" = "z" %in% names(standata))
+    }
+
+    if (power == "unif") {
+      stopifnot("power = 'unif' specified, but no additional data (z)" = "z" %in% names(standata))
+      priors$power_a <- 1
+      priors$power_b <- 1
+    }
+
   }
 
-  if (power == "normal") {
-    stopifnot("priors$power_mean and priors$power_sd must be provided if power = 'normal'" = all(c("power_mean", "power_sd") %in% names(priors)))
-    stopifnot("power_mean and prior_sd specified, but no additional data (z)" = "z" %in% names(standata))
-  }
 
-  if (power == "unif") {
-    stopifnot("power = 'unif' specified, but no additional data (z)" = "z" %in% names(standata))
-    priors$power_a <- 1
-    priors$power_b <- 1
-  }
 
   c(standata, priors)
 }
