@@ -15,6 +15,8 @@ data {
   vector[Ny] Y;
 
   // hyperpriors
+  real<lower=0> sigma_x_min;
+  real<lower=0> sigma_y_min;
   real<lower=0> sigma_x_max;
   real<lower=0> sigma_y_max;
   real<lower=0> alpha_sd;
@@ -29,8 +31,8 @@ parameters {
   real beta;
   vector[K] theta;
 
-  real<lower=0, upper=sigma_x_max> sigma_x;
-  real<lower=0, upper=sigma_y_max> sigma_y;
+  real<lower=sigma_x_min, upper=sigma_x_max> sigma_x;
+  real<lower=sigma_y_min, upper=sigma_y_max> sigma_y;
 }
 
 transformed parameters {

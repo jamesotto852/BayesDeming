@@ -29,6 +29,14 @@ parse_df <- function(df, formula, z) {
 }
 
 add_priors <- function(standata, priors, power, theta_range) {
+
+  # Set defaults if missing
+  if (! "sigma_x_min" %in% names(priors)) priors$sigma_x_min <- 0
+  if (! "sigma_y_min" %in% names(priors)) priors$sigma_y_min <- 0
+
+  if (! "alpha_mean" %in% names(priors)) priors$alpha_mean <- 0
+  if (! "beta_mean" %in% names(priors)) priors$beta_mean <- 0
+
   # Check that necessary priors have been specified:
   stopifnot(
     "sigma_x_max, sigma_y_max, alpha_sd, and beta_sd must all be specified" =
@@ -38,18 +46,6 @@ add_priors <- function(standata, priors, power, theta_range) {
     "alpha_sd must be positive" = (0 < priors$alpha_sd & priors$alpha_sd < Inf),
     "beta_sd must be positive" = (0 < priors$beta_sd & priors$beta_sd < Inf)
   )
-
-  if ("alpha_mean" %in% names(priors)) {
-    stopifnot("alpha_mean must be finite" = abs(priors$alpha_mean) < Inf)
-  } else {
-    priors$alpha_mean <- 0
-  }
-
-  if ("beta_mean" %in% names(priors)) {
-    stopifnot("beta_mean must be finite" = abs(priors$beta_mean) < Inf)
-  } else {
-    priors$beta_mean <- 0
-  }
 
   if (!is.null(theta_range)) {
     stopifnot(
@@ -88,8 +84,6 @@ add_priors <- function(standata, priors, power, theta_range) {
     }
 
   }
-
-
 
   c(standata, priors)
 }
