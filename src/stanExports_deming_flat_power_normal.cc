@@ -2,12 +2,12 @@
 
 #include <Rcpp.h>
 using namespace Rcpp ;
-#include "stanExports_deming_hierarchical_normal.h"
+#include "stanExports_deming_flat_power_normal.h"
 
-RCPP_MODULE(stan_fit4deming_hierarchical_normal_mod) {
+RCPP_MODULE(stan_fit4deming_flat_power_normal_mod) {
 
 
-    class_<rstan::stan_fit<stan_model, boost::random::ecuyer1988> >("rstantools_model_deming_hierarchical_normal")
+    class_<rstan::stan_fit<stan_model, boost::random::ecuyer1988> >("rstantools_model_deming_flat_power_normal")
 
     .constructor<SEXP,SEXP,SEXP>()
 

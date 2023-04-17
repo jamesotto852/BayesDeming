@@ -51,9 +51,9 @@ parameters {
 
 transformed parameters {
   real lambda;
-  vector[K] nu;
+  vector[K] eta;
 
-  nu = alpha + beta * theta;
+  eta = alpha + beta * theta;
   lambda = (sigma_y / sigma_x)^2;
 }
 
@@ -75,7 +75,7 @@ model {
   // Likelihood for y values
   pos = 1;
   for (k in 1:K) {
-    segment(Y, pos, Jy[k]) ~ normal(nu[k], sigma_y);
+    segment(Y, pos, Jy[k]) ~ normal(eta[k], sigma_y);
     pos = pos + Jy[k];
   }
 

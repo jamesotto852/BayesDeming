@@ -2,12 +2,12 @@
 
 #include <Rcpp.h>
 using namespace Rcpp ;
-#include "stanExports_deming.h"
+#include "stanExports_deming_uniform_power_normal.h"
 
-RCPP_MODULE(stan_fit4deming_mod) {
+RCPP_MODULE(stan_fit4deming_uniform_power_normal_mod) {
 
 
-    class_<rstan::stan_fit<stan_model, boost::random::ecuyer1988> >("rstantools_model_deming")
+    class_<rstan::stan_fit<stan_model, boost::random::ecuyer1988> >("rstantools_model_deming_uniform_power_normal")
 
     .constructor<SEXP,SEXP,SEXP>()
 
