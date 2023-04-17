@@ -6,12 +6,12 @@
 #'
 #' @export
 #'
-deming <- function(df, priors, formula = y ~ x, z = NULL, power = NULL, empirical = FALSE, theta_range = NULL, init = NULL, chains = 4, ...) {
+deming <- function(df, priors, formula = y ~ x, z = NULL, power = NULL, theta_range = NULL, init = NULL, chains = 4, ...) {
 
   standata <- parse_df(df, formula, z)
   standata <- add_priors(standata, priors, power, theta_range)
 
-  mod <- get_deming_model(standata, priors, power, empirical, theta_range)
+  mod <- get_deming_model(standata, priors, power, theta_range)
 
   if (is.null(init)) {
     x_means <- vapply(df$x, mean, numeric(1))
@@ -23,10 +23,7 @@ deming <- function(df, priors, formula = y ~ x, z = NULL, power = NULL, empirica
 }
 
 # Parse relevant args of deming() to determine appropriate stan model
-get_deming_model <- function(standata, priors, power, empirical, theta_range) {
-
-  # Remove when no longer want empirical model
-  if (empirical) mod <- stanmodels$deming_empirical
+get_deming_model <- function(standata, priors, power, theta_range) {
 
   # power prior model or not?
   if (is.null(power)) {
