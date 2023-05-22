@@ -1,5 +1,11 @@
 #' Simulate Deming data
 #'
+#' @param Jx,Jy numeric vectors of equal lengths, the number of repeated measures per group.
+#' @param theta numeric vector the same length as `Jx` and `Jy`, the X values group means
+#' @param sdx,sdy the standard deviation of the X and Y values across all groups
+#' @param lambda the ratio of `sdy`/`sdx`. Either `sdy` or `lambda` must be specified, but not both.
+#' @param alpha,beta the values of the intercept and slope relating X and Y group means.
+#'
 #' @export
 #' @importFrom tibble tibble
 #' @examples

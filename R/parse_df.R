@@ -1,5 +1,17 @@
 # Helper function, convert nested df into data list for stan
-parse_df <- function(df, formula, z) {
+parse_df <- function(df, formula, x0) {
+
+  # Convert to list column format if in long-form
+  if (!any(vapply(df, is.list, logical(1)))) {
+
+    stopifnot("value" %in% colnames(df), "`df` in long-form format and is missing `value` column")
+    stopifnot("grp" %in%   colnames(df), "`df` in long-form format and is missing `grp` column")
+    stopifnot("var" %in%   colnames(df), "`df` in long-form format and is `var` column")
+
+    df <- tidyr::pivot_wider(df, values_from = value, names_from = var, values_fn = list)
+    df <- dplyr::select(df, !grp)
+
+  }
 
   # Formula should be simple to parse
   # (add functionality later)
@@ -19,9 +31,10 @@ parse_df <- function(df, formula, z) {
     Jy = vapply(y, length, numeric(1))
   )
 
-  if (!is.null(z)) {
-    standata$z <- z
-    standata$Nz <- length(z)
+  # stan models are written with z, not x0
+  if (!is.null(x0)) {
+    standata$z <- x0
+    standata$Nz <- length(x0)
   }
 
   standata
@@ -63,22 +76,22 @@ add_priors <- function(standata, priors, power, theta_range) {
 
     if (power == "point") {
       stopifnot("priors$power must be provided if power = 'point'" = "power" %in% names(priors))
-      stopifnot("power prior specified, but no additional data (z)" = "z" %in% names(standata))
+      stopifnot("power prior specified, but no additional data (x0)" = "z" %in% names(standata))
       stopifnot("power prior must be between 0 and 1 (inclusive)" = (0 <= priors$power & priors$power <= 1))
     }
 
     if (power == "beta") {
       stopifnot("priors$power_a and priors$power_b must be provided if power = 'beta'" = all(c("power_a", "power_b") %in% names(priors)))
-      stopifnot("power_a and prior_b specified, but no additional data (z)" = "z" %in% names(standata))
+      stopifnot("power_a and prior_b specified, but no additional data (x0)" = "z" %in% names(standata))
     }
 
     if (power == "normal") {
       stopifnot("priors$power_mean and priors$power_sd must be provided if power = 'normal'" = all(c("power_mean", "power_sd") %in% names(priors)))
-      stopifnot("power_mean and prior_sd specified, but no additional data (z)" = "z" %in% names(standata))
+      stopifnot("power_mean and prior_sd specified, but no additional data (x0)" = "z" %in% names(standata))
     }
 
     if (power == "unif") {
-      stopifnot("power = 'unif' specified, but no additional data (z)" = "z" %in% names(standata))
+      stopifnot("power = 'unif' specified, but no additional data (x0)" = "z" %in% names(standata))
       priors$power_a <- 1
       priors$power_b <- 1
     }

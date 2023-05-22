@@ -4,16 +4,116 @@
 \alias{deming}
 \title{Bayesian linear regression with Stan}
 \usage{
-deming(df, priors, formula = y ~ x, z = NULL, power = NULL, ...)
+deming(
+  df,
+  priors,
+  formula = y ~ x,
+  x0 = NULL,
+  power = NULL,
+  theta_range = NULL,
+  init = NULL,
+  chains = 4,
+  ...
+)
 }
 \arguments{
-\item{df}{Nested tibble, output from \code{sim_data}}
+\item{df}{either a \code{data.frame} with columns \code{value}, \code{var}, and \code{grp}; or a tibble with list columns. See "data structure" section below for details.}
 
-\item{...}{Arguments passed to \code{rstan::sampling} (e.g. iter, chains).}
+\item{priors}{a named list setting values for prior hyperparameters. See "priors" section below for details.}
+
+\item{formula}{an object of class \code{"formula"}. In model output, the LHS (RHS) is referred to as "y" ("x").}
+
+\item{x0}{an optional vector representing an additional group of X values observed without a corresponding Y group.}
+
+\item{power}{must be specified if \code{x0} is included, the power prior to use for prior data.
+Options are \code{"point"}, \code{"beta"}, \code{"normal"}, and \code{"unif"}.
+Additional prior parameters may need to specified via \code{priors} argument.}
+
+\item{theta_range}{Range to use for uniform prior on thetas (group means). If unspecified an improper flat prior is used; this is recommended.}
+
+\item{init}{Initial values specification. See the detailed documentation for 
+    the init argument in \code{\link[rstan]{stan}}.}
+
+\item{chains}{A positive integer specifying the number of Markov chains. 
+    The default is 4.}
+
+\item{...}{arguments passed to \code{rstan::sampling} (e.g. iter, chains).}
 }
 \value{
 An object of class \code{stanfit} returned by \code{rstan::sampling}
 }
 \description{
 Bayesian linear regression with Stan
+}
+\section{data structure}{
+
+The \code{df} argument must be a \code{data.frame}.
+As the data used in these models does not consist of ordered pairs
+the structure of this value is slightly complicated.
+
+\code{df} can be supplied as a \code{data.frame} with three columns: \code{value}, \code{var}, and \code{grp}.
+In this case, \code{value} is the value of both X and Y observations,
+\code{var} indicates whether a row corresponds to an X or Y observation,
+and \code{grp} labels a row as belonging to a group i = 1, ..., I.
+
+Alternatively, \code{df} can be supplied as a \code{tibble} with list columns.
+These must have elements that are numeric vectors,
+corresponding to groups of repeated measures.
+
+In both cases, the \code{formula} argument must be specified.
+If a \code{data.frame} is specified, the formula relates the values in the \code{var} column.
+If a \code{tibble} with list columns is specified, the formula relates the relevant column names.
+See the below "examples" section for an illustration of both methods of data specification.
+}
+
+\section{priors}{
+
+The \code{priors} argument is a list that is necessary to specify values
+governing the prior distributions used by the model.
+
+To specify the priors on alpha and beta, the intercept and slope relating X and Y values,
+\code{alpha_mean}, \code{alpha_sd}, \code{beta_mean}, and \code{beta_sd} must be specified.
+These define the normal priors placed on these parameters.
+
+To define the priors on the variance components sigma_x and sigma_y
+it is necessary to specify values \code{sigma_x_max} and \code{sigma_y_max}.
+These are used as the bounds for the uniform priors on these parameters.
+It is also possible to specify \code{sigma_x_min} and \code{sigma_y_min}
+as lower bounds for these distributions.
+
+It is possible that additional values need to be specified if prior data is provided via the \code{x0} argument.
+If \code{power} is \code{"point"}, \code{power} must be specified; this is the value the power prior is fixed at.
+If \code{power} is \code{"beta"}, \code{power_a} and \code{power_b} must be specified
+Similarly, if \code{power} is \code{"normal"}, \code{power_mean} and \code{power_sd} must be specified.
+These correspond to the mean and standard deviation of the normal distribution that is truncated to \link{0, 1}.
+}
+
+\examples{
+
+df <- sim_data(
+  Jx = c(6, 6, 6, 6, 6, 6, 6, 6),
+  Jy = c(4, 5, 5, 4, 5, 5, 5, 7),
+  theta = 1:8,
+  sdx = 1, sdy = 1,
+  alpha = 0, beta = 1
+)
+
+priors <- list(
+  sigma_x_max = 10,
+  sigma_y_max = 10,
+  alpha_mean = 0,
+  alpha_sd = 10,
+  beta_mean = 0,
+  beta_sd = 10
+)
+
+res <- deming(df, priors, y ~ x)
+
+# can also use `deming()` without list columns:
+df_long <- dplyr::mutate(df, grp = 1:8)
+df_long <- tidyr::pivot_longer(df_long, c(x, y), names_to = "var")
+df_long <- tidyr::unnest(df_long, value)
+
+res <- deming(df, priors, y ~ x)
+
 }

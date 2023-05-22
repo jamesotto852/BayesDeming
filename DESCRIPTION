@@ -29,6 +29,7 @@ Depends:
 Imports:
     rstan,
     dplyr,
+    tidyr,
     tibble,
     rlang
 Suggests:

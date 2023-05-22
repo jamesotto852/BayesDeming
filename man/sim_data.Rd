@@ -15,6 +15,17 @@ sim_data(
   beta = 1
 )
 }
+\arguments{
+\item{Jx, Jy}{numeric vectors of equal lengths, the number of repeated measures per group.}
+
+\item{theta}{numeric vector the same length as \code{Jx} and \code{Jy}, the X values group means}
+
+\item{sdx, sdy}{the standard deviation of the X and Y values across all groups}
+
+\item{lambda}{the ratio of \code{sdy}/\code{sdx}. Either \code{sdy} or \code{lambda} must be specified, but not both.}
+
+\item{alpha, beta}{the values of the intercept and slope relating X and Y group means.}
+}
 \description{
 Simulate Deming data
 }
