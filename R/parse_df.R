@@ -4,17 +4,15 @@ parse_df <- function(df, formula, x0) {
   # Convert to list column format if in long-form
   if (!any(vapply(df, is.list, logical(1)))) {
 
-    stopifnot("value" %in% colnames(df), "`df` in long-form format and is missing `value` column")
-    stopifnot("grp" %in%   colnames(df), "`df` in long-form format and is missing `grp` column")
-    stopifnot("var" %in%   colnames(df), "`df` in long-form format and is `var` column")
+    stopifnot("`df` in long-form format and is missing `value` column" = "value" %in% colnames(df))
+    stopifnot("`df` in long-form format and is missing `grp` column"   = "grp" %in%   colnames(df))
+    stopifnot("`df` in long-form format and is missing `var` column"   = "var" %in%   colnames(df))
 
     df <- tidyr::pivot_wider(df, values_from = value, names_from = var, values_fn = list)
     df <- dplyr::select(df, !grp)
 
   }
 
-  # Formula should be simple to parse
-  # (add functionality later)
   x <- df[deparse(formula[[3]])][[1]]
   y <- df[deparse(formula[[2]])][[1]]
 
@@ -82,16 +80,16 @@ add_priors <- function(standata, priors, power, theta_range) {
 
     if (power == "beta") {
       stopifnot("priors$power_a and priors$power_b must be provided if power = 'beta'" = all(c("power_a", "power_b") %in% names(priors)))
-      stopifnot("power_a and prior_b specified, but no additional data (x0)" = "z" %in% names(standata))
+      stopifnot("power prior specified, but no additional data (x0)" = "z" %in% names(standata))
     }
 
     if (power == "normal") {
       stopifnot("priors$power_mean and priors$power_sd must be provided if power = 'normal'" = all(c("power_mean", "power_sd") %in% names(priors)))
-      stopifnot("power_mean and prior_sd specified, but no additional data (x0)" = "z" %in% names(standata))
+      stopifnot("power prior specified, but no additional data (x0)" = "z" %in% names(standata))
     }
 
     if (power == "unif") {
-      stopifnot("power = 'unif' specified, but no additional data (x0)" = "z" %in% names(standata))
+      stopifnot("power prior specified, but no additional data (x0)" = "z" %in% names(standata))
       priors$power_a <- 1
       priors$power_b <- 1
     }
